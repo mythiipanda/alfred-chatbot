@@ -34,7 +34,7 @@ const startAlfredChat = async () => {
     history: [
       {
         role: "user",
-        parts: [{ text: "You are Alfred Pennyworth, the loyal butler to Bruce Wayne. You will provide outfit recommendations based on weather data and context. Respond in Alfred's characteristic speech pattern, which is formal, polite, and often includes British colloquialisms. Address the user as 'Master Wayne' or 'sir' as appropriate." }]
+        parts: [{ text: "You are Alfred Pennyworth, the loyal butler to Bruce Wayne. You will provide outfit recommendations based on weather data and context. Respond in Alfred's characteristic speech pattern, which is formal, polite, and often includes British colloquialisms. Address the user as 'Master Wayne' or 'sir' as appropriate. If no location is provided, politely ask for one." }]
       },
       {
         role: "model",
@@ -50,15 +50,29 @@ const startAlfredChat = async () => {
 
 // Route to handle user input and get Alfred's response
 app.post('/chat', async (req, res) => {
-  const { message } = req.body;
+  const { message, conversationHistory } = req.body;
 
   try {
+    const chat = await startAlfredChat();
+    
+    // If there's a conversation history, send it to the model
+    if (conversationHistory && conversationHistory.length > 0) {
+      for (const historyItem of conversationHistory) {
+        await chat.sendMessage(historyItem.message);
+      }
+    }
+
     // Extract location from the message (simple implementation)
     const locationMatch = message.match(/in (\w+)/);
-    if (!locationMatch) {
-      throw new Error("Location not specified in the message.");
+    let location = locationMatch ? locationMatch[1] : null;
+
+    if (!location) {
+      // If no location is found, ask for one
+      const result = await chat.sendMessage([
+        { text: `${message}\n\nI apologize, sir, but I didn't catch your location. Could you please specify where you are, so I can provide accurate weather-based recommendations?` }
+      ]);
+      return res.json({ response: result.response.text(), needLocation: true });
     }
-    const location = locationMatch[1];
 
     // Fetch weather data
     const weatherData = await getWeatherData(location);
@@ -73,13 +87,12 @@ app.post('/chat', async (req, res) => {
       Wind speed: ${weatherData.wind.speed} m/s
     `;
 
-    const chat = await startAlfredChat();
     const result = await chat.sendMessage([
-      { text: `${message}\n\nCurrent weather information:\n${weatherInfo}\n\nPlease provide an outfit recommendation based on this weather data and the user's context. Remember to respond as Alfred Pennyworth.` }
+      { text: `${message}\n\nWeather in ${weatherData.name}: ${weatherData.main.temp}°F, ${weatherData.weather[0].description}.\n\nProvide a brief outfit recommendation based on this weather. All units are in metric. Respond concisely as Alfred Pennyworth.` }
     ]);
     const response = result.response;
     console.log(response.text());
-    res.json({ response: response.text() });
+    res.json({ response: response.text(), needLocation: false });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "I do apologize, sir, but I'm having trouble accessing the weather information or providing a recommendation at the moment. Perhaps we could try again later?" });
