@@ -20,7 +20,7 @@ function App() {
       setInput("");
 
       try {
-        const response = await axios.post('alfred-chatbot-5xhl-6a6o5852l-tonys-projects-3bf31652.vercel.app/chat', { message: input });
+        const response = await axios.post('http://localhost:5000/chat', { message: input });
         const alfredResponse = { text: response.data.response, sender: "Alfred" };
         setMessages((prevMessages) => [...prevMessages, alfredResponse]);
       } catch (error) {
