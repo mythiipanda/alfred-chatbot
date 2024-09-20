@@ -28,7 +28,6 @@ async function getWeatherData(location) {
   }
 }
 
-// Set up a chat with instructions for Alfred's persona
 const startAlfredChat = async () => {
   const chat = model.startChat({
     history: [
@@ -48,36 +47,27 @@ const startAlfredChat = async () => {
   return chat;
 };
 
-// Route to handle user input and get Alfred's response
 app.post('/chat', async (req, res) => {
   const { message, conversationHistory } = req.body;
 
   try {
-    const chat = await startAlfredChat();
-    
-    // If there's a conversation history, send it to the model
+    const chat = await startAlfredChat();    
     if (conversationHistory && conversationHistory.length > 0) {
       for (const historyItem of conversationHistory) {
         await chat.sendMessage(historyItem.message);
       }
     }
 
-    // Extract location from the message (simple implementation)
     const locationMatch = message.match(/in (\w+)/);
     let location = locationMatch ? locationMatch[1] : null;
 
     if (!location) {
-      // If no location is found, ask for one
       const result = await chat.sendMessage([
         { text: `${message}\n\nI apologize, sir, but I didn't catch your location. Could you please specify where you are, so I can provide accurate weather-based recommendations?` }
       ]);
       return res.json({ response: result.response.text(), needLocation: true });
     }
-
-    // Fetch weather data
     const weatherData = await getWeatherData(location);
-
-    // Prepare weather information for the AI
     const weatherInfo = `
       Location: ${weatherData.name}
       Temperature: ${weatherData.main.temp}°C
@@ -99,7 +89,6 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Alfred's weather-savvy wardrobe service is at your disposal on port ${PORT}, sir.`);
