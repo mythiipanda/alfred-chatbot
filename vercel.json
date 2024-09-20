@@ -1,0 +1,36 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "alfred-backend/index.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "alfred-chatbot/package.json",
+        "use": "@vercel/static-build",
+        "config": { "distDir": "build" }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/chat",
+        "dest": "alfred-backend/index.js"
+      },
+      {
+        "src": "/static/(.*)",
+        "dest": "alfred-chatbot/static/$1"
+      },
+      {
+        "src": "/favicon.ico",
+        "dest": "alfred-chatbot/favicon.ico"
+      },
+      {
+        "src": "/manifest.json",
+        "dest": "alfred-chatbot/manifest.json"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "alfred-chatbot/index.html"
+      }
+    ]
+  }
