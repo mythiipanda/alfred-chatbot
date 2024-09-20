@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/alfred/static/css/main.02fffe46.css",
+    "main.js": "/alfred/static/js/main.9be5c4b2.js",
+    "static/js/453.7385a9b5.chunk.js": "/alfred/static/js/453.7385a9b5.chunk.js",
+    "static/media/batman.jpg": "/alfred/static/media/batman.bdf54fe4bbf94b4a771b.jpg",
+    "index.html": "/alfred/index.html",
+    "main.02fffe46.css.map": "/alfred/static/css/main.02fffe46.css.map",
+    "main.9be5c4b2.js.map": "/alfred/static/js/main.9be5c4b2.js.map",
+    "453.7385a9b5.chunk.js.map": "/alfred/static/js/453.7385a9b5.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.02fffe46.css",
+    "static/js/main.9be5c4b2.js"
+  ]
+}
